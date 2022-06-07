@@ -3,6 +3,11 @@ package liv
 import (
 	"fmt"
 	"github.com/ensaas/license-sdk/common"
+	"log"
+	"os"
+	"os/exec"
+	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -43,6 +48,8 @@ func TestWrapper_CheckAuthCode(t *testing.T) {
 }
 
 func TestWrapper_CheckAuthCodeWithActiveInfo(t *testing.T) {
+	_, filename, _, ok := runtime.Caller(0)
+	fmt.Printf(filename, ok)
 	lic := &common.License{
 		LicenseID:       "ensaase80add40-1f47-4615-9285-0e7a0ad765b7ensaas-service",
 		ServiceName:     "Config-Mgmt.",
@@ -58,4 +65,16 @@ func TestWrapper_CheckAuthCodeWithActiveInfo(t *testing.T) {
 		fmt.Println(err)
 	}
 	fmt.Println(isValid)
+}
+
+func TestWrapper(t *testing.T) {
+	absPath, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	name, err := exec.LookPath(fmt.Sprintf("%s/bin/%s", strings.TrimRight(absPath, "/liv"), livLinux))
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	fmt.Println(name)
 }

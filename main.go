@@ -1,1 +1,5 @@
-package license_sdk
+package main
+
+func main() {
+
+}

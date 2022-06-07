@@ -3,14 +3,8 @@ package liv
 import (
 	"fmt"
 	"github.com/ensaas/license-sdk/common"
-	"os"
 	"os/exec"
 	"strconv"
-)
-
-const (
-	liv     = "Liv"
-	livPath = "../Liv"
 )
 
 // Wrapper is wrap methods for check license auth code
@@ -74,16 +68,11 @@ func (w *wrapper) prepareCheckCmd() (*exec.Cmd, error) {
 		args = append([]string{"--Expire", strconv.FormatInt(w.license.ExpireTimestamp, 10)}, args...)
 	}
 
-	var cmd *exec.Cmd
-	if _, err := os.Stat(livPath); err != nil {
-		name, err := LookPath(liv)
-		if err != nil {
-			return nil, err
-		}
-		cmd = exec.Command(name, args...)
-	} else {
-		cmd = exec.Command(livPath, args...)
+	name, err := LookExec()
+	if err != nil {
+		return nil, err
 	}
+	cmd := exec.Command(name, args...)
 
 	return cmd, nil
 }
@@ -93,15 +82,10 @@ func (w *wrapper) prepareVersionCmd() (*exec.Cmd, error) {
 		"version",
 	}
 
-	var cmd *exec.Cmd
-	if _, err := os.Stat(livPath); err != nil {
-		name, err := LookPath(liv)
-		if err != nil {
-			return nil, err
-		}
-		cmd = exec.Command(name, args...)
-	} else {
-		cmd = exec.Command(livPath, args...)
+	name, err := LookExec()
+	if err != nil {
+		return nil, err
 	}
+	cmd := exec.Command(name, args...)
 	return cmd, nil
 }
