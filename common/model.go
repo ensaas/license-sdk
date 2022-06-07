@@ -7,10 +7,13 @@ import (
 )
 
 type License struct {
-	LicenseID   string
-	ServiceName string
-	PnArr       []string
-	ActiveInfo  string
+	LicenseID       string
+	ServiceName     string
+	Pn              string
+	ActiveInfo      string
+	Authcode        string
+	Number          int64
+	ExpireTimestamp int64
 }
 
 func NewLicense(serviceName string, pnArr []string, activeInfo string) (*License, error) {
@@ -27,7 +30,6 @@ func NewLicense(serviceName string, pnArr []string, activeInfo string) (*License
 
 	return &License{
 		ServiceName: serviceName,
-		PnArr:       pnArr,
 		ActiveInfo:  activeInfo,
 		LicenseID:   fmt.Sprintf("%s%s%s", cluster, workspace, namespace),
 	}, nil
