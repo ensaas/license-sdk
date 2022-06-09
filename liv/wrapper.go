@@ -2,23 +2,21 @@ package liv
 
 import (
 	"fmt"
-	"github.com/ensaas/license-sdk/common"
+	"github.com/ensaas/license-sdk/models"
 	"os/exec"
 	"strconv"
 )
 
 // Wrapper is wrap methods for check license auth code
 type Wrapper interface {
-	CheckAuthCode() (bool, error)
+	CheckAuthCode(lic *models.License) (bool, error)
 	GetVersion() (string, error)
 }
 
-type wrapper struct {
-	license *common.License
-}
+type wrapper struct{}
 
-func New(lic *common.License) Wrapper {
-	return &wrapper{license: lic}
+func New() Wrapper {
+	return &wrapper{}
 }
 
 func (w *wrapper) GetVersion() (string, error) {
@@ -35,8 +33,8 @@ func (w *wrapper) GetVersion() (string, error) {
 	return string(output), nil
 }
 
-func (w *wrapper) CheckAuthCode() (bool, error) {
-	cmd, err := w.prepareCheckCmd()
+func (w *wrapper) CheckAuthCode(lic *models.License) (bool, error) {
+	cmd, err := w.prepareCheckCmd(lic)
 	if err != nil {
 		return false, fmt.Errorf("failed preparing liv check command: %w", err)
 	}
@@ -52,20 +50,20 @@ func (w *wrapper) CheckAuthCode() (bool, error) {
 	return b, nil
 }
 
-func (w *wrapper) prepareCheckCmd() (*exec.Cmd, error) {
+func (w *wrapper) prepareCheckCmd(lic *models.License) (*exec.Cmd, error) {
 	args := []string{
 		"validate",
-		"--PN", w.license.Pn,
-		"--LicenseID", w.license.LicenseID,
-		"--Authcode", w.license.Authcode,
-		"--Number", strconv.FormatInt(w.license.Number, 10),
+		"--PN", lic.Pn,
+		"--LicenseID", lic.LicenseID,
+		"--Authcode", lic.Authcode,
+		"--Number", strconv.Itoa(lic.Number),
 	}
 
-	if len(w.license.ActiveInfo) != 0 {
-		args = append([]string{"--ActiveInfo", w.license.ActiveInfo}, args...)
+	if len(lic.ActiveInfo) != 0 {
+		args = append([]string{"--ActiveInfo", lic.ActiveInfo}, args...)
 	}
-	if w.license.ExpireTimestamp != 0 {
-		args = append([]string{"--Expire", strconv.FormatInt(w.license.ExpireTimestamp, 10)}, args...)
+	if lic.ExpireTimestamp != 0 {
+		args = append([]string{"--Expire", strconv.FormatInt(lic.ExpireTimestamp, 10)}, args...)
 	}
 
 	name, err := LookExec()

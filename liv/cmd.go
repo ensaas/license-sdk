@@ -9,9 +9,8 @@ import (
 )
 
 const (
-	livLinux        = "Liv"
-	livWindows      = "Liv.exe"
-	projectRootPath = "license-sdk"
+	livLinux   = "Liv"
+	livWindows = "Liv.exe"
 )
 
 func Run(cmd *exec.Cmd) ([]byte, error) {
