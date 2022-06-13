@@ -38,6 +38,8 @@ type appParams struct {
 
 // LicenseManager is for manager app license lifecycle
 type LicenseManager interface {
+	// IsLegalLicense check license is legal
+	IsLegalLicense(pn string) (bool, error)
 	// GetStatus get current license check status by pn
 	GetAvailableDays(pn string) (int, error)
 	//InitAppParams initialize app parameters which are fixed value
@@ -62,6 +64,15 @@ func (lic *licenseManager) InitAppParams(serviceName, licenseId, activeInfo stri
 		LicenseId:   licenseId,
 		ActiveInfo:  activeInfo,
 	}
+}
+
+// IsLegalLicense
+func (lic *licenseManager) IsLegalLicense(pn string) (bool, error) {
+	availableDays, err := lic.checker.GetAvailableDays(pn)
+	if err != nil {
+		return false, err
+	}
+	return availableDays > 0, nil
 }
 
 // GetStatus is get check license status,data in db format is serviceName:failedTimes
