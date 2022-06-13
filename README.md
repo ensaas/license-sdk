@@ -13,7 +13,7 @@ It's SDK could prevent tamper data from license API,also compatible with old lic
 
 ## Usage
 
-```
+```go
 package main
 
 import (
