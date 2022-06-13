@@ -1,4 +1,4 @@
-package main
+package licenseSDK
 
 import (
 	"github.com/ensaas/license-sdk/encryptor"

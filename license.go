@@ -1,4 +1,4 @@
-package main
+package licenseSDK
 
 import (
 	"fmt"
@@ -165,7 +165,7 @@ func (lic *licenseManager) LivVersion() (string, error) {
 }
 
 // NewLicenseManager create a license manager with store,encryptor,licenseUrl
-func New(store store.Store, encryptor encryptor.Encryptor, licenseUrl string) *licenseManager {
+func New(store store.Store, encryptor encryptor.Encryptor, licenseUrl string) LicenseManager {
 	return &licenseManager{
 		checker:   checker.New(store, encryptor),
 		retriever: retrieve.NewRetriever(licenseUrl),
@@ -173,7 +173,7 @@ func New(store store.Store, encryptor encryptor.Encryptor, licenseUrl string) *l
 }
 
 //NewWithDefaultEncryptor create a license manager with default encryptor
-func NewWithDefaultEncryptor(store store.Store, salt, licenseUrl string) (*licenseManager, error) {
+func NewWithDefaultEncryptor(store store.Store, salt, licenseUrl string) (LicenseManager, error) {
 	etor, err := encryptor.New(salt)
 	if err != nil {
 		return nil, fmt.Errorf("init encryptor failed:%v", err)
@@ -182,7 +182,7 @@ func NewWithDefaultEncryptor(store store.Store, salt, licenseUrl string) (*licen
 }
 
 //NewWithDefaultStore create a license manager with default store
-func NewWithDefaultStore(encryptor encryptor.Encryptor, storeParams map[string]interface{}, licenseUrl string) (*licenseManager, error) {
+func NewWithDefaultStore(encryptor encryptor.Encryptor, storeParams map[string]interface{}, licenseUrl string) (LicenseManager, error) {
 	pg, err := postgre.New(storeParams)
 	if err != nil {
 		return nil, fmt.Errorf("create postgre store failed:[%v]", err)
@@ -191,7 +191,7 @@ func NewWithDefaultStore(encryptor encryptor.Encryptor, storeParams map[string]i
 }
 
 //NewLicenseManagerWithDefault create license manager with default component
-func NewWithDefault(storeParams map[string]interface{}, aesSalt, licenseUrl string) (*licenseManager, error) {
+func NewWithDefault(storeParams map[string]interface{}, aesSalt, licenseUrl string) (LicenseManager, error) {
 	pg, err := postgre.New(storeParams)
 	if err != nil {
 		return nil, fmt.Errorf("create postgre store failed:[%v]", err)
