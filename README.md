@@ -35,7 +35,7 @@ func main() {
 
 	// postgres param
 	pgParams := map[string]interface{}{
-		postgre.Host:         "172.21.84.188",
+		postgre.Host:         "localhost",
 		postgre.Port:         "5432",
 		postgre.Username:     "postgres",
 		postgre.Password:     "123456",
