@@ -25,14 +25,17 @@ import (
 )
 
 func main() {
+	// salt must has 32 byte
 	salt := "12345678123456781234567812345678"
+	// create a encryptor for encrypt data is store
 	entor, err := encryptor.New(salt)
 	if err != nil {
 		log.Fatalf("init encryptor failed:[%v]", err)
 	}
 
+	// postgres param
 	pgParams := map[string]interface{}{
-		postgre.Host:         "localhost",
+		postgre.Host:         "172.21.84.188",
 		postgre.Port:         "5432",
 		postgre.Username:     "postgres",
 		postgre.Password:     "123456",
@@ -41,6 +44,7 @@ func main() {
 		postgre.MaxIdleConns: 10,
 		postgre.MaxOpenConns: 10,
 	}
+	// init a postgre store
 	pgStore, err := postgre.New(pgParams)
 	if err != nil {
 		log.Fatalf("init postgre store failed:[%v]", err)
@@ -49,25 +53,42 @@ func main() {
 
 	// create a license Mgr
 	licenseMgr := licenseSDK.New(pgStore, entor, licenseUrl)
-	licenseMgr.InitAppParams("LicenseServer", "cluster001-workspaceId21d21d-ensaas", "1dwd12ijijdq")
+	// init license app related params
+	licenseMgr.InitAppParams("hh", "dddaaacacsa", "")
 
+	// license which will be checked
 	checkedLicense := []*licenseSDK.License{
 		{
-			Pn:              "9806WPDASH",
-			Authcode:        "5083-2101-0001",
-			Number:          1,
+			Pn:              "dd111ddd",
+			Authcode:        "fc51-5c23-0002",
+			Number:          2,
 			ExpireTimestamp: 0,
 		},
 	}
+	// start validate license job
 	if err := licenseMgr.StartValidate(checkedLicense); err != nil {
 		log.Fatalf("validate license start job failed:[%s]", err.Error())
 	}
-
+	// get license available days by pn
 	availableDays, err := licenseMgr.GetAvailableDays("9806WPDASH")
 	if err != nil {
 		log.Fatalf("get license available days failed:[%s]", err.Error())
 	}
 	fmt.Println(availableDays)
+	// check license is legal or not
+	isValid,err := licenseMgr.IsLegalLicense("9806WPDASH")
+	if err != nil{
+		log.Fatalf("is license legal failed:[%v]",err)
+	}
+	fmt.Println(isValid)
 }
 ```
+
+## Note
+
+LicenseSDK need binary program Liv for linux or Liv.exe for windows,so need put this binary program in /usr/local/bin for linux or
+set path for windows
+
+There is another way to make this binary enabled that is make dir "bin" under app program root directory,then put "Liv" or "Liv.exe"
+in "bin" directory
 
