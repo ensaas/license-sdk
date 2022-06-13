@@ -2,6 +2,7 @@ package retrieve
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
@@ -54,7 +55,6 @@ func (r *retriever) LicenseIDAndPn(id, pn string) (*LicenseResponse, error) {
 
 	resp, err := r.httpClient.R().
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Content-Type", "application/json").
 		Get(licenseUrl)
 	if err != nil {
 		logrus.Errorf("Failed get license, url is [%s],err:[%v]", licenseUrl, err)
@@ -64,6 +64,16 @@ func (r *retriever) LicenseIDAndPn(id, pn string) (*LicenseResponse, error) {
 	if resp.StatusCode() != 200 {
 		logrus.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
 		return nil, fmt.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
+	}
+
+	//check license response
+	isVailid, err := validateResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	if !isVailid {
+		logrus.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
+		return nil, fmt.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
 	}
 
 	var data = &resource{}
@@ -82,7 +92,6 @@ func (r *retriever) LicenseWithoutActiveInfoBy(id, service string) ([]*LicenseRe
 
 	resp, err := r.httpClient.R().
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Content-Type", "application/json").
 		Get(licenseUrl)
 	if err != nil {
 		logrus.Errorf("Failed get license, url is [%s],err:[%v]", licenseUrl, err)
@@ -92,6 +101,16 @@ func (r *retriever) LicenseWithoutActiveInfoBy(id, service string) ([]*LicenseRe
 	if resp.StatusCode() != 200 {
 		logrus.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
 		return nil, fmt.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
+	}
+
+	//check license response
+	isVailid, err := validateResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	if !isVailid {
+		logrus.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
+		return nil, fmt.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
 	}
 
 	var data = &licenseResource{}
@@ -136,7 +155,6 @@ func (r *retriever) LicenseWithActiveInfoBy(id, service string) ([]*LicenseRespo
 
 	resp, err := r.httpClient.R().
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Content-Type", "application/json").
 		Get(licenseUrl)
 	if err != nil {
 		logrus.Errorf("Failed get license, url is [%s],err:[%v]", licenseUrl, err)
@@ -146,6 +164,16 @@ func (r *retriever) LicenseWithActiveInfoBy(id, service string) ([]*LicenseRespo
 	if resp.StatusCode() != 200 {
 		logrus.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
 		return nil, fmt.Errorf("Call license API [%s] failed,status:[%d],response:[%s]", licenseUrl, resp.StatusCode(), string(resp.Body()))
+	}
+
+	//check license response
+	isVailid, err := validateResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	if !isVailid {
+		logrus.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
+		return nil, fmt.Errorf("data from License API illegal,please check it,License url is %s, response is %s", licenseUrl, string(resp.Body()))
 	}
 
 	var data = &LicenseData{}
@@ -159,4 +187,25 @@ func (r *retriever) LicenseWithActiveInfoBy(id, service string) ([]*LicenseRespo
 	}
 
 	return data.LicenseList, nil
+}
+
+// validateResponse validate reponse from server is valid
+func validateResponse(response *resty.Response) (bool, error) {
+	checksum := response.Header().Get("checksum")
+	if len(checksum) == 0 {
+		logrus.Warningf("License Response: checksum not found in header")
+		return true, nil
+	}
+
+	dataBytes, err := base64.StdEncoding.DecodeString(checksum)
+	if err != nil {
+		logrus.Errorf("[License API Response] decoding checksum failed:[%v]", err)
+		return false, fmt.Errorf("decoding checksum failed:[%v]", err)
+	}
+	isValid, err := RsaVerySignWithSha256(response.Body(), dataBytes)
+	if err != nil {
+		logrus.Errorf("[License API Response] validate checksum failed:%v", err)
+		return false, fmt.Errorf("validate checksum failed:%v", err)
+	}
+	return isValid, nil
 }

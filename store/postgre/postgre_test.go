@@ -7,11 +7,11 @@ import (
 )
 
 var m = map[string]interface{}{
-	Host:     "172.21.84.188",
+	Host:     "localhost",
 	Port:     "5432",
 	Username: "postgres",
 	Password: "123456",
-	DBName:   "listing",
+	DBName:   "license",
 }
 
 func TestPostgres_Load(t *testing.T) {
