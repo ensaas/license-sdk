@@ -92,3 +92,6 @@ set path for windows
 There is another way to make this binary enabled that is make dir "bin" under app program root directory,then put "Liv" or "Liv.exe"
 in "bin" directory
 
+## License SDK Relationship With Service
+
+![LicenseSDK](img/license_sdk.jpg)
