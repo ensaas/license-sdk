@@ -13,6 +13,8 @@ It's SDK could prevent tamper data from license API,also compatible with old lic
 
 ## Usage
 
+The SDK consists of encryptor and store, both of them is interface. The encryptor has a default implement,if you want to use others which can be implement by yourself.
+We provide postgres and sqlite for store, postgres is default.The below is instance with default encryptor and default store:
 ```go
 package main
 
@@ -53,6 +55,71 @@ func main() {
 
 	// create a license Mgr
 	licenseMgr := licenseSDK.New(pgStore, entor, licenseUrl)
+	// init license app related params
+	licenseMgr.InitAppParams("hh", "dddaaacacsa", "")
+
+	// license which will be checked
+	checkedLicense := []*licenseSDK.License{
+		{
+			Pn:              "dd111ddd",
+			Authcode:        "fc51-5c23-0002",
+			Number:          2,
+			ExpireTimestamp: 0,
+		},
+	}
+	// start validate license job
+	if err := licenseMgr.StartValidate(checkedLicense); err != nil {
+		log.Fatalf("validate license start job failed:[%s]", err.Error())
+	}
+	// get license available days by pn
+	availableDays, err := licenseMgr.GetAvailableDays("9806WPDASH")
+	if err != nil {
+		log.Fatalf("get license available days failed:[%s]", err.Error())
+	}
+	fmt.Println(availableDays)
+	// check license is legal or not
+	isValid,err := licenseMgr.IsLegalLicense("9806WPDASH")
+	if err != nil{
+		log.Fatalf("is license legal failed:[%v]",err)
+	}
+	fmt.Println(isValid)
+}
+```
+
+Also,you can use sqlite as a store,code example as follow:
+```go
+package main
+
+import (
+	"fmt"
+	licenseSDK "github.com/ensaas/license-sdk"
+	"github.com/ensaas/license-sdk/encryptor"
+	"github.com/ensaas/license-sdk/store/sqlite"
+	"log"
+)
+
+func main() {
+	// salt must has 32 byte
+	salt := "12345678123456781234567812345678"
+	// create a encryptor for encrypt data is store
+	entor, err := encryptor.New(salt)
+	if err != nil {
+		log.Fatalf("init encryptor failed:[%v]", err)
+	}
+
+	// postgres param
+	params := map[string]interface{}{
+		sqlite.DatabaseName: "/home/license/sqlite/license",
+	}
+	// init a postgre store
+	dbstore, err := sqlite.New(params)
+	if err != nil {
+		log.Fatalf("init postgre store failed:[%v]", err)
+	}
+	licenseUrl := "http://localhost:8080/v1"
+
+	// create a license Mgr
+	licenseMgr := licenseSDK.New(dbstore, entor, licenseUrl)
 	// init license app related params
 	licenseMgr.InitAppParams("hh", "dddaaacacsa", "")
 

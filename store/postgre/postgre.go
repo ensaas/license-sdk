@@ -2,6 +2,7 @@ package postgre
 
 import (
 	"fmt"
+	"github.com/ensaas/license-sdk/store"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -60,7 +61,7 @@ func (p *postgres) Initialize(params map[string]interface{}) error {
 	return nil
 }
 
-func New(params map[string]interface{}) (*postgres, error) {
+func New(params map[string]interface{}) (store.Store, error) {
 	host, ok := params[Host]
 	if !ok {
 		return nil, fmt.Errorf("postgre host not found")
