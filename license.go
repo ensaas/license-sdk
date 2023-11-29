@@ -70,6 +70,7 @@ func (lic *licenseManager) InitAppParams(serviceName, licenseId, activeInfo stri
 func (lic *licenseManager) IsLegalLicense(pn string) (bool, error) {
 	availableDays, err := lic.checker.GetAvailableDays(pn)
 	if err != nil {
+		log.Printf("get available days failed:%s", err.Error())
 		return false, err
 	}
 	return availableDays > 0, nil
@@ -183,7 +184,7 @@ func New(store store.Store, encryptor encryptor.Encryptor, licenseUrl string) Li
 	}
 }
 
-//NewWithDefaultEncryptor create a license manager with default encryptor
+// NewWithDefaultEncryptor create a license manager with default encryptor
 func NewWithDefaultEncryptor(store store.Store, salt, licenseUrl string) (LicenseManager, error) {
 	etor, err := encryptor.New(salt)
 	if err != nil {
@@ -192,7 +193,7 @@ func NewWithDefaultEncryptor(store store.Store, salt, licenseUrl string) (Licens
 	return New(store, etor, licenseUrl), nil
 }
 
-//NewWithDefaultStore create a license manager with default store
+// NewWithDefaultStore create a license manager with default store
 func NewWithDefaultStore(encryptor encryptor.Encryptor, storeParams map[string]interface{}, licenseUrl string) (LicenseManager, error) {
 	pg, err := postgre.New(storeParams)
 	if err != nil {
@@ -201,7 +202,7 @@ func NewWithDefaultStore(encryptor encryptor.Encryptor, storeParams map[string]i
 	return New(pg, encryptor, licenseUrl), nil
 }
 
-//NewLicenseManagerWithDefault create license manager with default component
+// NewLicenseManagerWithDefault create license manager with default component
 func NewWithDefault(storeParams map[string]interface{}, aesSalt, licenseUrl string) (LicenseManager, error) {
 	pg, err := postgre.New(storeParams)
 	if err != nil {

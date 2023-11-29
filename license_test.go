@@ -82,7 +82,7 @@ func TestNewWithDefaultStore(t *testing.T) {
 		postgre.MaxIdleConns: 10,
 		postgre.MaxOpenConns: 10,
 	}
-	entor, err := encryptor.New("12345678912345678932145678781231")
+	entor, err := encryptor.New("")
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
