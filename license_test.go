@@ -37,7 +37,7 @@ func TestNewWithDefault(t *testing.T) {
 	licenseUrl := "http://api-license-ews.axa.wise-paas.com.cn/v1"
 	salt := "12345678912345678932145678781231"
 	storeParams := map[string]interface{}{
-		postgre.Host:         "localhost",
+		postgre.Host:         "",
 		postgre.Port:         "5432",
 		postgre.Username:     "postgres",
 		postgre.Password:     "",
@@ -76,7 +76,7 @@ func TestNewWithDefaultStore(t *testing.T) {
 		postgre.Host:         "localhost",
 		postgre.Port:         "5432",
 		postgre.Username:     "postgres",
-		postgre.Password:     "123456",
+		postgre.Password:     "",
 		postgre.DBName:       "listing",
 		postgre.SSLMode:      "disable",
 		postgre.MaxIdleConns: 10,
